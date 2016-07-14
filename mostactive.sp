@@ -298,7 +298,7 @@ public int ShowTotalCallback(Handle owner, Handle hndl, char [] error, any clien
 	}
 	
 	Menu menu2 = CreateMenu(DIDMenuHandler2);
-	SetMenuTitle(menu2, "Top Total played");
+	menu2.SetTitle("Top Total played");
 	
 	int order = 0;
 	char number[64];
@@ -315,19 +315,19 @@ public int ShowTotalCallback(Handle owner, Handle hndl, char [] error, any clien
 			g_iHours = 0;
 			g_iMinutes = 0;
 			g_iSeconds = 0;
-			mostrartiempo2(SQL_FetchInt(hndl, 1));
+			ShowTimer2(SQL_FetchInt(hndl, 1));
 			Format(textbuffer,128, "n%i %s - %d h. %d m. %d s.", order,name,g_iHours, g_iMinutes, g_iSeconds);
-			AddMenuItem(menu2, number, textbuffer);
+			menu2.AddItem(number, textbuffer);
 		}
 	}
 	if(order < 1) 
 	{
-		AddMenuItem(menu2, "empty", "TOP is empty!");
+		menu2.AddItem("empty", "TOP is empty!");
 	}
 	
-	SetMenuExitButton(menu2, true);
-	SetMenuExitBackButton(menu2, true);
-	DisplayMenu(menu2, client, MENU_TIME_FOREVER);
+	menu2.ExitButton = true;
+	menu2.ExitBackButton = true;
+	menu2.Display(client,MENU_TIME_FOREVER);
 }
 
 public void ShowSpec(int client)
@@ -354,7 +354,7 @@ public void ShowSpecCallback(Handle owner, Handle hndl, char [] error, any clien
 	}
 	
 	Menu menu2 = CreateMenu(DIDMenuHandler2);
-	SetMenuTitle(menu2, "Top Spectator");
+	menu2.SetTitle("Top Spectator");
 	
 	int order = 0;
 	char number[64];
@@ -371,19 +371,19 @@ public void ShowSpecCallback(Handle owner, Handle hndl, char [] error, any clien
 			g_iHours = 0;
 			g_iMinutes = 0;
 			g_iSeconds = 0;
-			mostrartiempo2(SQL_FetchInt(hndl, 1));
+			ShowTimer2(SQL_FetchInt(hndl, 1));
 			Format(textbuffer,128, "n%i %s - %d h. %d m. %d s.", order,name,g_iHours, g_iMinutes, g_iSeconds); 
-			AddMenuItem(menu2, number, textbuffer);
+			menu2.AddItem(number, textbuffer);
 		}
 	}
 	if(order < 1)
 	{
-		AddMenuItem(menu2, "empty", "TOP is empty!");
+		menu2.AddItem("empty", "TOP is empty!");
 	}
 	
-	SetMenuExitButton(menu2, true);
-	SetMenuExitBackButton(menu2, true);
-	DisplayMenu(menu2, client, MENU_TIME_FOREVER);
+	menu2.ExitButton = true;
+	menu2.ExitBackButton = true;
+	menu2.Display(client,MENU_TIME_FOREVER);
 }
 
 public void ShowTerror(int client)
@@ -410,7 +410,7 @@ public int ShowTerrorCallback(Handle owner, Handle hndl, char [] error, any clie
 	}
 	
 	Menu menu2 = CreateMenu(DIDMenuHandler2);
-	SetMenuTitle(menu2, "Top T");
+	menu2.SetTitle("Top T");
 	
 	int order = 0;
 	char number[64];
@@ -427,19 +427,19 @@ public int ShowTerrorCallback(Handle owner, Handle hndl, char [] error, any clie
 			g_iHours = 0;
 			g_iMinutes = 0;
 			g_iSeconds = 0;
-			mostrartiempo2(SQL_FetchInt(hndl, 1));
+			ShowTimer2(SQL_FetchInt(hndl, 1));
 			Format(textbuffer,128, "n%i %s - %d h. %d m. %d s.", order,name,g_iHours, g_iMinutes, g_iSeconds);
-			AddMenuItem(menu2, number, textbuffer);
+			menu2.AddItem(number, textbuffer);
 		}
 	}
 	if(order < 1)
 	{
-		AddMenuItem(menu2, "empty", "TOP is empty!");
+		menu2.AddItem("empty", "TOP is empty!");
 	}
 	
-	SetMenuExitButton(menu2, true);
-	SetMenuExitBackButton(menu2, true);
-	DisplayMenu(menu2, client, MENU_TIME_FOREVER);
+	menu2.ExitButton = true;
+	menu2.ExitBackButton = true;
+	menu2.Display(client,MENU_TIME_FOREVER);
 }
 
 public void ShowCT(int client)
@@ -466,7 +466,7 @@ public int ShowCTCallback(Handle owner, Handle hndl, char [] error, any client)
 	}
 	
 	Menu menu2 = CreateMenu(DIDMenuHandler2);
-	SetMenuTitle(menu2, "Top CT");
+	menu2.SetTitle("Top CT");
 	
 	
 	int order = 0;
@@ -484,19 +484,19 @@ public int ShowCTCallback(Handle owner, Handle hndl, char [] error, any client)
 			g_iHours = 0;
 			g_iMinutes = 0;
 			g_iSeconds = 0;
-			mostrartiempo2(SQL_FetchInt(hndl, 1));
+			ShowTimer2(SQL_FetchInt(hndl, 1));
 			Format(textbuffer,128, "n%i %s - %d h. %d m. %d s.", order,name,g_iHours, g_iMinutes, g_iSeconds); 
-			AddMenuItem(menu2, number, textbuffer);
+			menu2.AddItem(number, textbuffer);
 		}
 	}
 	if(order < 1)
 	{
-		AddMenuItem(menu2, "empty", "TOP is empty!");
+		menu2.AddItem("empty", "TOP is empty!");
 	}
 	
-	SetMenuExitButton(menu2, true);
-	SetMenuExitBackButton(menu2, true);
-	DisplayMenu(menu2, client, MENU_TIME_FOREVER);
+	menu2.ExitButton = true;
+	menu2.ExitBackButton = true;
+	menu2.Display(client,MENU_TIME_FOREVER);
 }
 
 stock int ShowTimer(int Time, char[] buffer,int sizef)
@@ -529,7 +529,7 @@ stock int ShowTimer(int Time, char[] buffer,int sizef)
 	}
 }
 
-stock void mostrartiempo2(int Time)
+stock void ShowTimer2(int Time)
 {
 	g_iHours = 0;
 	g_iMinutes = 0;
@@ -547,7 +547,7 @@ stock void mostrartiempo2(int Time)
 	}
 }
 
-public void DIDMenuHandler2(Handle menu, MenuAction action, int client, int itemNum) 
+public int DIDMenuHandler2(Menu menu2, MenuAction action, int client, int itemNum) 
 {
 	if(action == MenuAction_Cancel) 
 	{
@@ -559,7 +559,7 @@ public void DIDMenuHandler2(Handle menu, MenuAction action, int client, int item
 	}
 	else if(action == MenuAction_End)
 	{
-		CloseHandle(menu);
+		CloseHandle(menu2);
 	}
 }
 
@@ -579,15 +579,15 @@ public Action DOMenu(int client, int args)
 	}
 	else
 	{
-		Handle menu = CreateMenu(DIDMenuHandler);
-		SetMenuTitle(menu, "Most Active");
-		AddMenuItem(menu, "option1", "View your time");
-		AddMenuItem(menu, "option2", "View Top total played");
-		AddMenuItem(menu, "option4", "View Top T");
-		AddMenuItem(menu, "option5", "View Top CT");
-		AddMenuItem(menu, "option3", "View Top Spectator");
-		SetMenuExitButton(menu, true);
-		DisplayMenu(menu, client, MENU_TIME_FOREVER);
+		Menu menu = CreateMenu(DIDMenuHandler);
+		menu.SetTitle("Most Active");
+		menu.AddItem("option1", "View your time");
+		menu.AddItem("option2", "View Top total played");
+		menu.AddItem("option4", "View Top T");
+		menu.AddItem("option5", "View Top CT");
+		menu.AddItem("option3", "View Top Spectator");
+		menu.ExitButton = true;
+		menu.Display(client,MENU_TIME_FOREVER);
 	}
 	return Plugin_Handled;
 }
@@ -615,33 +615,33 @@ public int SQLShowPlayTime(Handle owner, Handle hndl, char [] error, any data)
 	char name[124];
 	SQL_FetchString(hndl, 4, name, 124);
 	
-	Handle menu = CreateMenu(DIDMenuHandlerHandler);
-	SetMenuTitle(menu, "Time for the player %s", name);
+	Menu menu = CreateMenu(DIDMenuHandlerHandler);
+	menu.SetTitle("Time for the player %s", name);
 	
 	char buffer[124];
 	
 	ShowTimer(SQL_FetchInt(hndl, 2), buffer, sizeof(buffer));
 	Format(buffer, 124, "Spectator: %s", buffer);
-	AddMenuItem(menu, "", buffer, ITEMDRAW_DISABLED);
+	menu.AddItem("", buffer, ITEMDRAW_DISABLED);
 	
 	ShowTimer(SQL_FetchInt(hndl, 1), buffer, sizeof(buffer));
 	Format(buffer, 124, "Terrorist: %s", buffer);
-	AddMenuItem(menu, "", buffer, ITEMDRAW_DISABLED);
+	menu.AddItem("", buffer, ITEMDRAW_DISABLED);
 	
 	ShowTimer(SQL_FetchInt(hndl, 0), buffer, sizeof(buffer));
 	Format(buffer, 124, "Counter-terrorist: %s", buffer);
-	AddMenuItem(menu, "", buffer, ITEMDRAW_DISABLED);
+	menu.AddItem("", buffer, ITEMDRAW_DISABLED);
 	
 	ShowTimer(SQL_FetchInt(hndl, 3), buffer, sizeof(buffer));
 	Format(buffer, 124, "Total played: %s", buffer);
-	AddMenuItem(menu, "", buffer, ITEMDRAW_DISABLED);
+	menu.AddItem("", buffer, ITEMDRAW_DISABLED);
 	
-	SetMenuExitButton(menu, true);
-	SetMenuExitBackButton(menu, true);
-	DisplayMenu(menu, client, MENU_TIME_FOREVER);
+	menu.ExitButton = true;
+	menu.ExitBackButton = true;
+	menu.Display(client,MENU_TIME_FOREVER);
 }
 
-public int DIDMenuHandler(Handle menu, MenuAction action, int client, int itemNum) 
+public int DIDMenuHandler(Menu menu, MenuAction action, int client, int itemNum) 
 {
 	if( action == MenuAction_Select ) 
 	{
@@ -651,30 +651,30 @@ public int DIDMenuHandler(Handle menu, MenuAction action, int client, int itemNu
 		
 		if( strcmp(info,"option1") == 0 )
 		{
-			Handle menu2 = CreateMenu(DIDMenuHandlerHandler);
-			SetMenuTitle(menu2, "Time for the player %N", client);
+			Menu menu2 = CreateMenu(DIDMenuHandlerHandler);
+			menu2.SetTitle("Time for the player %N", client);
 			
 			char buffer[124];
 			
 			ShowTimer(g_iPlayTimeSpec[client], buffer, sizeof(buffer));
 			Format(buffer, 124, "Spectator: %s", buffer);
-			AddMenuItem(menu2, "", buffer, ITEMDRAW_DISABLED);
+			menu2.AddItem("", buffer, ITEMDRAW_DISABLED);
 			
 			ShowTimer(g_iPlayTimeT[client], buffer, sizeof(buffer));
 			Format(buffer, 124, "Terrorist: %s", buffer);
-			AddMenuItem(menu2, "", buffer, ITEMDRAW_DISABLED);
+			menu2.AddItem("", buffer, ITEMDRAW_DISABLED);
 			
 			ShowTimer(g_iPlayTimeCT[client], buffer, sizeof(buffer));
 			Format(buffer, 124, "Counter-terrorist: %s", buffer);
-			AddMenuItem(menu2, "", buffer, ITEMDRAW_DISABLED);
+			menu2.AddItem("", buffer, ITEMDRAW_DISABLED);
 			
 			int totalt = (g_iPlayTimeT[client] + g_iPlayTimeCT[client] + g_iPlayTimeSpec[client]);
 			ShowTimer(totalt, buffer, sizeof(buffer));
 			Format(buffer, 124, "Total played: %s", buffer);
-			AddMenuItem(menu2, "", buffer, ITEMDRAW_DISABLED);
-			SetMenuExitButton(menu2, true);
-			SetMenuExitBackButton(menu2, true);
-			DisplayMenu(menu2, client, MENU_TIME_FOREVER);
+			menu2.AddItem("", buffer, ITEMDRAW_DISABLED);
+			menu2.ExitButton = true;
+			menu2.ExitBackButton = true;
+			menu2.Display(client,MENU_TIME_FOREVER);
 			//DOMenu(client, 0);
 			//DID(client);
 		}
@@ -713,7 +713,7 @@ public int DIDMenuHandler(Handle menu, MenuAction action, int client, int itemNu
 	}
 }
 
-public int DIDMenuHandlerHandler(Handle menu, MenuAction action, int client, int itemNum) 
+public int DIDMenuHandlerHandler(Menu menu, MenuAction action, int client, int itemNum) 
 {
 	if(action == MenuAction_Cancel) 
 	{
