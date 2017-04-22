@@ -522,23 +522,18 @@ stock int ShowTimer(int Time, char[] buffer,int sizef)
 	g_iMinutes = 0;
 	g_iSeconds = Time;
 	
-	while(g_iSeconds > 3600)
+	if (Time > 3599)
 	{
-		g_iHours++;
-		g_iSeconds -= 3600;
+		g_iHours = Time / 3600 % 60;
+		g_iMinutes = Time / 60 % 60;
+		g_iSeconds = Time % 60;
+		Format(buffer, sizef, "%d hours %d minutes %d seconds", g_iHours, g_iMinutes, g_iSeconds);
 	}
-	while(g_iSeconds > 60)
+	else if(Time > 59)
 	{
-		g_iMinutes++;
-		g_iSeconds -= 60;
-	}
-	if(g_iHours >= 1)
-	{
-		Format(buffer, sizef, "%d hours %d minutes %d seconds", g_iHours, g_iMinutes, g_iSeconds );
-	}
-	else if(g_iMinutes >= 1)
-	{
-		Format(buffer, sizef, "%d minutes %d seconds", g_iMinutes, g_iSeconds );
+		g_iMinutes = Time / 60 % 60;
+		g_iSeconds = Time % 60;
+		Format(buffer, sizef, "%d minutes %d seconds", g_iMinutes, g_iSeconds);
 	}
 	else
 	{
@@ -552,15 +547,16 @@ stock void ShowTimer2(int Time)
 	g_iMinutes = 0;
 	g_iSeconds = Time;
 	
-	while(g_iSeconds > 3600)
+	if (Time > 3599)
 	{
-		g_iHours++;
-		g_iSeconds -= 3600;
+		g_iHours = Time / 3600 % 60;
+		g_iMinutes = Time / 60 % 60;
+		g_iSeconds = Time % 60;
 	}
-	while(g_iSeconds > 60)
+	else if(Time > 59)
 	{
-		g_iMinutes++;
-		g_iSeconds -= 60;
+		g_iMinutes = Time / 60 % 60;
+		g_iSeconds = Time % 60;
 	}
 }
 
