@@ -16,14 +16,13 @@
  */
 
 #pragma semicolon 1
-#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
 
 #define IDAYS 26
 
-#define VERSION "2.2"
+#define VERSION "2.3"
 
 int g_iPlayTimeSpec[MAXPLAYERS+1] = 0;
 int g_iPlayTimeT[MAXPLAYERS+1] = 0;
@@ -296,7 +295,7 @@ public void ShowTotal(int client)
 	if(g_hDB != INVALID_HANDLE)
 	{
 		char buffer[200];
-		Format(buffer, sizeof(buffer), "SELECT playername, total FROM mostactive ORDER BY total DESC LIMIT 999");
+		Format(buffer, sizeof(buffer), "SELECT playername, total, steamid FROM mostactive ORDER BY total DESC LIMIT 999");
 		SQL_TQuery(g_hDB, ShowTotalCallback, buffer, client);
 	}
 	else
@@ -321,6 +320,7 @@ public int ShowTotalCallback(Handle owner, Handle hndl, char [] error, any clien
 	char number[64];
 	char name[64];
 	char textbuffer[128];
+	char steamid[128];
 	
 	if(SQL_HasResultSet(hndl))
 	{
@@ -329,12 +329,13 @@ public int ShowTotalCallback(Handle owner, Handle hndl, char [] error, any clien
 			order++;
 			Format(number,64, "option%i", order);
 			SQL_FetchString(hndl, 0, name, sizeof(name));
+			SQL_FetchString(hndl, 2, steamid, sizeof(steamid));
 			g_iHours = 0;
 			g_iMinutes = 0;
 			g_iSeconds = 0;
 			ShowTimer2(SQL_FetchInt(hndl, 1));
 			Format(textbuffer,128, "n%i %s - %d h. %d m. %d s.", order,name,g_iHours, g_iMinutes, g_iSeconds);
-			menu2.AddItem(number, textbuffer);
+			menu2.AddItem(steamid, textbuffer);
 		}
 	}
 	if(order < 1) 
@@ -352,7 +353,7 @@ public void ShowSpec(int client)
 	if(g_hDB != INVALID_HANDLE)
 	{
 		char buffer[200];
-		Format(buffer, sizeof(buffer), "SELECT playername, timeSPE FROM mostactive ORDER BY timeSPE DESC LIMIT 999");
+		Format(buffer, sizeof(buffer), "SELECT playername, timeSPE, steamid FROM mostactive ORDER BY timeSPE DESC LIMIT 999");
 		SQL_TQuery(g_hDB, ShowSpecCallback, buffer, client);
 	}
 	else
@@ -377,6 +378,7 @@ public void ShowSpecCallback(Handle owner, Handle hndl, char [] error, any clien
 	char number[64];
 	char name[64];
 	char textbuffer[128];
+	char steamid[128];
 	
 	if(SQL_HasResultSet(hndl))
 	{
@@ -385,12 +387,13 @@ public void ShowSpecCallback(Handle owner, Handle hndl, char [] error, any clien
 			order++;
 			Format(number,64, "option%i", order);
 			SQL_FetchString(hndl, 0, name, sizeof(name));
+			SQL_FetchString(hndl, 2, steamid, sizeof(steamid));
 			g_iHours = 0;
 			g_iMinutes = 0;
 			g_iSeconds = 0;
 			ShowTimer2(SQL_FetchInt(hndl, 1));
 			Format(textbuffer,128, "n%i %s - %d h. %d m. %d s.", order,name,g_iHours, g_iMinutes, g_iSeconds); 
-			menu2.AddItem(number, textbuffer);
+			menu2.AddItem(steamid, textbuffer);
 		}
 	}
 	if(order < 1)
@@ -408,7 +411,7 @@ public void ShowTerror(int client)
 	if(g_hDB != INVALID_HANDLE)
 	{
 		char buffer[200];
-		Format(buffer, sizeof(buffer), "SELECT playername, timeTT FROM mostactive ORDER BY timeTT DESC LIMIT 999");
+		Format(buffer, sizeof(buffer), "SELECT playername, timeTT, steamid FROM mostactive ORDER BY timeTT DESC LIMIT 999");
 		SQL_TQuery(g_hDB, ShowTerrorCallback, buffer, client);
 	}
 	else
@@ -433,6 +436,7 @@ public int ShowTerrorCallback(Handle owner, Handle hndl, char [] error, any clie
 	char number[64];
 	char name[64];
 	char textbuffer[128];
+	char steamid[128];
 	
 	if(SQL_HasResultSet(hndl))
 	{
@@ -441,12 +445,13 @@ public int ShowTerrorCallback(Handle owner, Handle hndl, char [] error, any clie
 			order++;
 			Format(number,64, "option%i", order);
 			SQL_FetchString(hndl, 0, name, sizeof(name));
+			SQL_FetchString(hndl, 2, steamid, sizeof(steamid));
 			g_iHours = 0;
 			g_iMinutes = 0;
 			g_iSeconds = 0;
 			ShowTimer2(SQL_FetchInt(hndl, 1));
 			Format(textbuffer,128, "n%i %s - %d h. %d m. %d s.", order,name,g_iHours, g_iMinutes, g_iSeconds);
-			menu2.AddItem(number, textbuffer);
+			menu2.AddItem(steamid, textbuffer);
 		}
 	}
 	if(order < 1)
@@ -464,7 +469,7 @@ public void ShowCT(int client)
 	if(g_hDB != INVALID_HANDLE)
 	{
 		char buffer[200];
-		Format(buffer, sizeof(buffer), "SELECT playername, timeCT FROM mostactive ORDER BY timeCT DESC LIMIT 999");
+		Format(buffer, sizeof(buffer), "SELECT playername, timeCT, steamid FROM mostactive ORDER BY timeCT DESC LIMIT 999");
 		SQL_TQuery(g_hDB, ShowCTCallback, buffer, client);
 	}
 	else
@@ -490,6 +495,7 @@ public int ShowCTCallback(Handle owner, Handle hndl, char [] error, any client)
 	char number[64];
 	char name[64];
 	char textbuffer[128];
+	char steamid[128];
 	
 	if(SQL_HasResultSet(hndl))
 	{
@@ -498,12 +504,13 @@ public int ShowCTCallback(Handle owner, Handle hndl, char [] error, any client)
 			order++;
 			Format(number,64, "option%i", order);
 			SQL_FetchString(hndl, 0, name, sizeof(name));
+			SQL_FetchString(hndl, 2, steamid, sizeof(steamid));
 			g_iHours = 0;
 			g_iMinutes = 0;
 			g_iSeconds = 0;
 			ShowTimer2(SQL_FetchInt(hndl, 1));
 			Format(textbuffer,128, "n%i %s - %d h. %d m. %d s.", order,name,g_iHours, g_iMinutes, g_iSeconds); 
-			menu2.AddItem(number, textbuffer);
+			menu2.AddItem(steamid, textbuffer);
 		}
 	}
 	if(order < 1)
@@ -560,9 +567,39 @@ stock void ShowTimer2(int Time)
 	}
 }
 
+stock bool:GetCommunityID(String:AuthID[], String:FriendID[], size)
+{
+    if(strlen(AuthID) < 11 || AuthID[0]!='S' || AuthID[6]=='I')
+    {
+        FriendID[0] = 0;
+        return false;
+    }
+    new iUpper = 765611979;
+    new iFriendID = StringToInt(AuthID[10])*2 + 60265728 + AuthID[8]-48;
+    new iDiv = iFriendID/100000000;
+    new iIdx = 9-(iDiv?iDiv/10+1:0);
+    iUpper += iDiv;
+    IntToString(iFriendID, FriendID[iIdx], size-iIdx);
+    iIdx = FriendID[9];
+    IntToString(iUpper, FriendID, size);
+    FriendID[9] = iIdx;
+    return true;
+}
+
 public int DIDMenuHandler2(Menu menu2, MenuAction action, int client, int itemNum) 
 {
-	if(action == MenuAction_Cancel) 
+	if( action == MenuAction_Select ) 
+	{
+			char info[128], community[128];
+		
+			GetMenuItem(menu2, itemNum, info, sizeof(info));
+			GetCommunityID(info, community, sizeof(community));
+			
+			Format(community, sizeof(community), "http://steamcommunity.com/profiles/%s", community);
+			PrintToChat(client, community);
+			PrintToConsole(client, community);
+	}
+	else if(action == MenuAction_Cancel) 
 	{
 		if(itemNum==MenuCancel_ExitBack)
 		{
