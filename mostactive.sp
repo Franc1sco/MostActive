@@ -22,7 +22,7 @@
 
 #define IDAYS 26
 
-#define VERSION "2.3"
+#define VERSION "2.4"
 
 int g_iPlayTimeSpec[MAXPLAYERS+1] = 0;
 int g_iPlayTimeT[MAXPLAYERS+1] = 0;
@@ -529,18 +529,23 @@ stock int ShowTimer(int Time, char[] buffer,int sizef)
 	g_iMinutes = 0;
 	g_iSeconds = Time;
 	
-	if (Time > 3599)
+	while(g_iSeconds > 3600)
 	{
-		g_iHours = Time / 3600 % 60;
-		g_iMinutes = Time / 60 % 60;
-		g_iSeconds = Time % 60;
-		Format(buffer, sizef, "%d hours %d minutes %d seconds", g_iHours, g_iMinutes, g_iSeconds);
+		g_iHours++;
+		g_iSeconds -= 3600;
 	}
-	else if(Time > 59)
+	while(g_iSeconds > 60)
 	{
-		g_iMinutes = Time / 60 % 60;
-		g_iSeconds = Time % 60;
-		Format(buffer, sizef, "%d minutes %d seconds", g_iMinutes, g_iSeconds);
+		g_iMinutes++;
+		g_iSeconds -= 60;
+	}
+	if(g_iHours >= 1)
+	{
+		Format(buffer, sizef, "%d hours %d minutes %d seconds", g_iHours, g_iMinutes, g_iSeconds );
+	}
+	else if(g_iMinutes >= 1)
+	{
+		Format(buffer, sizef, "%d minutes %d seconds", g_iMinutes, g_iSeconds );
 	}
 	else
 	{
@@ -554,16 +559,15 @@ stock void ShowTimer2(int Time)
 	g_iMinutes = 0;
 	g_iSeconds = Time;
 	
-	if (Time > 3599)
+	while(g_iSeconds > 3600)
 	{
-		g_iHours = Time / 3600 % 60;
-		g_iMinutes = Time / 60 % 60;
-		g_iSeconds = Time % 60;
+		g_iHours++;
+		g_iSeconds -= 3600;
 	}
-	else if(Time > 59)
+	while(g_iSeconds > 60)
 	{
-		g_iMinutes = Time / 60 % 60;
-		g_iSeconds = Time % 60;
+		g_iMinutes++;
+		g_iSeconds -= 60;
 	}
 }
 
