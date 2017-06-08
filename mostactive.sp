@@ -1,6 +1,7 @@
 /*  SM Most Active
  *
  *  Copyright (C) 2017 Francisco 'Franc1sco' García
+ *  Contributor: shanapu
  * 
  * This program is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the Free
@@ -16,13 +17,15 @@
  */
 
 #pragma semicolon 1
+#pragma newdecls required
 
 #include <sourcemod>
 #include <sdktools>
+#include <mostactive>
 
 #define IDAYS 26
 
-#define VERSION "2.4"
+#define VERSION "2.5"
 
 int g_iPlayTimeSpec[MAXPLAYERS+1] = 0;
 int g_iPlayTimeT[MAXPLAYERS+1] = 0;
@@ -37,6 +40,7 @@ bool g_bIsMySQl;
 
 // DB handle
 Handle g_hDB = INVALID_HANDLE;
+Handle gF_OnInsertNewPlayer;
 
 int g_iHours;
 int g_iMinutes;
@@ -44,11 +48,25 @@ int g_iSeconds;
 
 public Plugin myinfo = {
 	name = "SM Most Active",
-	author = "Franc1sco Steam: franug", //edit by shanapu
+	author = "Franc1sco Steam: franug / shanapu",
 	description = "A rank based in time played",
 	version = VERSION,
 	url = "http://steamcommunity.com/id/franug"
 };
+
+public APLRes AskPluginLoad2(Handle myself, bool late, char [] error, int err_max)
+{
+	CreateNative("MostActive_GetPlayTimeCT", Native_GetPlayTimeCT);
+	CreateNative("MostActive_GetPlayTimeT", Native_GetPlayTimeT);
+	CreateNative("MostActive_GetPlayTimeSpec", Native_GetPlayTimeSpec);
+	CreateNative("MostActive_GetPlayTimeTotal", Native_GetPlayTimeTotal);
+
+	gF_OnInsertNewPlayer = CreateGlobalForward("MostActive_OnInsertNewPlayer", ET_Event, Param_Cell);
+
+	RegPluginLibrary("mostactive");
+
+	return APLRes_Success;
+}
 
 public void OnPluginStart()
 {
@@ -130,7 +148,7 @@ public void InsertSQLNewPlayer(int client)
 		TrimString(Name);
 		SQL_EscapeString(g_hDB, Name, SafeName, sizeof(SafeName));
 	}
-		
+	
 	Format(query, sizeof(query), "INSERT INTO mostactive(playername, steamid, last_accountuse, timeCT, timeTT, timeSPE, total) VALUES('%s', '%s', '%d', '0', '0', '0', '0');", SafeName, steamid, GetTime());
 	SQL_TQuery(g_hDB, SaveSQLPlayerCallback, query, userid);
 	LogToFileEx(g_sCmdLogPath, "Query %s", query);
@@ -138,8 +156,39 @@ public void InsertSQLNewPlayer(int client)
 	g_iPlayTimeT[client] = 0;
 	g_iPlayTimeSpec[client] = 0;
 	
-	g_bChecked[client] = true;
+	Call_StartForward(gF_OnInsertNewPlayer);
+	Call_PushCell(client);
+	Call_Finish();
 	
+	g_bChecked[client] = true;
+}
+
+public int Native_GetPlayTimeCT(Handle plugin, int argc)
+{
+	int client = GetNativeCell(1);
+	
+	return g_iPlayTimeCT[client];
+}
+
+public int Native_GetPlayTimeT(Handle plugin, int argc)
+{
+	int client = GetNativeCell(1);
+	
+	return g_iPlayTimeT[client];
+}
+
+public int Native_GetPlayTimeSpec(Handle plugin, int argc)
+{
+	int client = GetNativeCell(1);
+	
+	return g_iPlayTimeSpec[client];
+}
+
+public int Native_GetPlayTimeTotal(Handle plugin, int argc)
+{
+	int client = GetNativeCell(1);
+	
+	return g_iPlayTimeSpec[client]+g_iPlayTimeCT[client]+g_iPlayTimeT[client];
 }
 
 public int SaveSQLPlayerCallback(Handle owner, Handle hndl, char [] error, any data)
@@ -523,7 +572,7 @@ public int ShowCTCallback(Handle owner, Handle hndl, char [] error, any client)
 	menu2.Display(client,MENU_TIME_FOREVER);
 }
 
-stock int ShowTimer(int Time, char[] buffer,int sizef)
+int ShowTimer(int Time, char[] buffer,int sizef)
 {
 	g_iHours = 0;
 	g_iMinutes = 0;
@@ -553,7 +602,7 @@ stock int ShowTimer(int Time, char[] buffer,int sizef)
 	}
 }
 
-stock void ShowTimer2(int Time)
+void ShowTimer2(int Time)
 {
 	g_iHours = 0;
 	g_iMinutes = 0;
@@ -571,23 +620,23 @@ stock void ShowTimer2(int Time)
 	}
 }
 
-stock bool:GetCommunityID(String:AuthID[], String:FriendID[], size)
+bool GetCommunityID(char [] AuthID, char [] FriendID, int size)
 {
-    if(strlen(AuthID) < 11 || AuthID[0]!='S' || AuthID[6]=='I')
-    {
-        FriendID[0] = 0;
-        return false;
-    }
-    new iUpper = 765611979;
-    new iFriendID = StringToInt(AuthID[10])*2 + 60265728 + AuthID[8]-48;
-    new iDiv = iFriendID/100000000;
-    new iIdx = 9-(iDiv?iDiv/10+1:0);
-    iUpper += iDiv;
-    IntToString(iFriendID, FriendID[iIdx], size-iIdx);
-    iIdx = FriendID[9];
-    IntToString(iUpper, FriendID, size);
-    FriendID[9] = iIdx;
-    return true;
+	if(strlen(AuthID) < 11 || AuthID[0]!='S' || AuthID[6]=='I')
+	{
+		FriendID[0] = 0;
+		return false;
+	}
+	int iUpper = 765611979;
+	int iFriendID = StringToInt(AuthID[10])*2 + 60265728 + AuthID[8]-48;
+	int iDiv = iFriendID/100000000;
+	int iIdx = 9-(iDiv?iDiv/10+1:0);
+	iUpper += iDiv;
+	IntToString(iFriendID, FriendID[iIdx], size-iIdx);
+	iIdx = FriendID[9];
+	IntToString(iUpper, FriendID, size);
+	FriendID[9] = iIdx;
+	return true;
 }
 
 public int DIDMenuHandler2(Menu menu2, MenuAction action, int client, int itemNum) 
