@@ -45,7 +45,7 @@ include_once("inc/function.php");
 		<?php echo '<link href="'.$stylesheet.'" rel="stylesheet">'; ?>
 		
 		<!-- Custom Theme CSS -->
-		<link href="../../theme.css" rel="stylesheet">
+		<link href="theme.css" rel="stylesheet">
 		
 		<!-- FavIcon -->
 		<link rel="icon" href="favicon.ico">
@@ -54,16 +54,16 @@ include_once("inc/function.php");
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 		
 		<!-- Bootstrap Core JavaScript -->
-		<script src="../../js/bootstrap.js"></script>
+		<script src="js/bootstrap.js"></script>
 		
 		<!-- rowlink JavaScript -->
-		<script src="../../js/rowlink.js"></script>
+		<script src="js/rowlink.js"></script>
 	</head>
 	
 	<?php
 	if ($background != "")
 	{
-		echo'<body data-ng-controller="demoController as vm" style="background: url(' .$background. '); background-repeat: no-repeat; background-attachment: fixed;">';
+		echo'<body data-ng-controller="demoController as vm" style="background: url(' .$background. '); background-repeat: no-repeat; background-attachment: fixed; width:100%; height:100%;">';
 	}
 	else
 	{
