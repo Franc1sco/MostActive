@@ -1,0 +1,16 @@
+.navbar.affix {
+  width: 100%;
+  margin-top: -485px;
+}
+
+#top-link-block.affix-top{
+    position: absolute; /* allows it to "slide" up into view */
+    margin-top: -485px;
+    left: 10px;
+}
+
+#top-link-block.affix{
+    position: fixed; /* keeps it on the bottom once in view */
+    bottom: 18px;
+    left: 10px;
+}
