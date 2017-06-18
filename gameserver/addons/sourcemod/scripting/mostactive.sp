@@ -25,7 +25,7 @@
 
 #define IDAYS 26
 
-#define VERSION "2.5"
+#define VERSION "2.6"
 
 int g_iPlayTimeSpec[MAXPLAYERS+1] = 0;
 int g_iPlayTimeT[MAXPLAYERS+1] = 0;
@@ -72,6 +72,7 @@ public void OnPluginStart()
 {
 	CreateConVar("sm_mostactive_version", VERSION, "version", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
 	RegConsoleCmd("sm_active", DOMenu);
+	RegConsoleCmd("sm_wasted", Command_Wasted);
 	
 	for(int i=0;;i++)
 	{
@@ -830,4 +831,29 @@ public int DIDMenuHandlerHandler(Menu menu, MenuAction action, int client, int i
 	{
 		CloseHandle(menu);
 	}
+}
+
+public Action Command_Wasted(int client, int args)
+{
+	SQL_TQuery(g_hDB, SQLShowWasteTime, "SELECT sum(total) FROM mostactive");
+
+	return Plugin_Handled;
+}
+
+public int SQLShowWasteTime(Handle owner, Handle hndl, char [] error, any client)
+{
+	if(hndl == INVALID_HANDLE)
+	{
+		LogError("Query failure: %s", error);
+		return;
+	}
+
+	while (SQL_FetchRow(hndl))
+	{
+		char buffer[124];
+		ShowTimer(SQL_FetchInt(hndl, 0), buffer, sizeof(buffer));
+		PrintToChatAll("[Most Active] Players wasted a total of %s on this server", buffer);
+	}
+
+	delete hndl;
 }
