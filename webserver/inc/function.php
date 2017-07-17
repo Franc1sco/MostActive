@@ -103,6 +103,8 @@ function calculateSteamid2($vars)
 
 
 function secondsToTime($seconds, $time_format) {
+	date_default_timezone_set('America/Los_Angeles');
+
 	$dtF = new DateTime("@0");
 	$dtT = new DateTime("@$seconds");
 	$diff = $dtF->diff($dtT);
