@@ -1,7 +1,7 @@
 <?php
 //  This file is part of MostActive sourcemod plugin.
 //
-//  Copyright (C) 2017 MostActive Dev Team 
+//  Copyright (C) 2017 MostActive Dev Team
 //  https://github.com/Franc1sco/MostActive/graphs/contributors
 //
 //  This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,6 @@
 //
 // *************************************************************************
 
-
 // Calculate communityid
 function calculateSteamid64($steamID)
 {
@@ -36,71 +35,70 @@ function calculateSteamid64($steamID)
 		// Convert
 		$steamID = str_replace("_", ":", $steamID);
 		list($part_one, $part_two, $part_three, $part_four) = explode(':', $steamID);
-		
+
 		$result = bcadd('76561197960265728', $part_four * 2);
-		
+
 		return bcadd($result, $part_three);
 	}
-	else 
+	else
 	{
 		return false;
 	}
 }
 
-
 // Steamid out of communityid
 function calculateSteamid($vars)
 {
 	$commid = $vars;
-	
-	if (substr($commid, -1) % 2 == 0) 
+
+	if (substr($commid, -1) % 2 == 0)
 	{
-		$server = 0; 
+		$server = 0;
 	}
 	else
-	{ 
+	{
 		$server = 1;
 	}
-	
+
 	$auth = bcsub($commid, '76561197960265728');
-	
+
 	if (bccomp($auth, '0') != 1)
 	{
 		return "";
 	}
-	
+
 	$auth = bcsub($auth, $server);
 	$auth = bcdiv($auth, 2);
-	
+
 	return 'STEAM_0:'.$server.':'.$auth;
 }
+
 // Steamid out of communityid
 function calculateSteamid2($vars)
 {
 	$commid = $vars;
-	
-	if (substr($commid, -1) % 2 == 0) 
+
+	if (substr($commid, -1) % 2 == 0)
 	{
-		$server = 0; 
+		$server = 0;
 	}
 	else
-	{ 
+	{
 		$server = 1;
 	}
-	
+
 	$auth = bcsub($commid, '76561197960265728');
-	
+
 	if (bccomp($auth, '0') != 1)
 	{
 		return "";
 	}
-	
+
 	$auth = bcsub($auth, $server);
 	$auth = bcdiv($auth, 2);
-	
+
 	return 'STEAM_1:'.$server.':'.$auth;
 }
-
 
 function secondsToTime($seconds, $time_format) {
 	date_default_timezone_set('America/Los_Angeles');
@@ -119,49 +117,54 @@ function secondsToTime($seconds, $time_format) {
 	return implode(', </font>', $out);
 }
 
-
 class SQL
 {
 	// link identifier
 	private $db = NULL;
-	
+
 	// Constructor
-	function __construct($host, $user, $pass, $stamm_dbName)
+	function __construct($host, $user, $pass, $dbName)
 	{
 		// Connect to MySQL
-		$this->db = mysql_connect($host, $user, $pass) or die("Couldn't make connection.");
-		mysql_select_db($stamm_dbName, $this->db) or die("Couldn't select database");
+		$this->db = mysqli_connect($host, $user, $pass, $dbName);
+
+		if (!$this->db) {
+			die("Couldn't make connection.");
+		}
 	}
-	
+
 	// Escapes a string
 	public function escape($string)
 	{
-		return mysql_escape_string($string);
+		return mysqli_real_escape_string($this->db, $string);
 	}
-	
+
 	// Do a query
 	public function query($query)
 	{
-		$result = mysql_query($query, $this->db) or die(mysql_error($this->db));
-		
+		$result = mysqli_query($this->db, $query);
+
+		if (!$result) {
+			die(mysqli_sqlstate($this->db));
+		}
 		return $result;
 	}
-	
+
 	// Check if we found Data
 	public function foundData($result)
 	{
-		return mysql_num_rows($result);
+		return mysqli_num_rows($result);
 	}
-	
+
 	// Get Rows
 	public function getRows($result)
 	{
-		return mysql_fetch_row($result);
+		return mysqli_fetch_row($result);
 	}
-	
+
 	// Get Array
 	public function getArray($result)
 	{
-		return mysql_fetch_assoc($result);
+		return mysqli_fetch_assoc($result);
 	}
 }
