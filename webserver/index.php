@@ -78,6 +78,16 @@ include_once("inc/function.php");
 		
 		<div class="page-header"></div>
 		
+		<?php
+			if (!extension_loaded('bcmath'))
+			{
+				if (!dl('bcmath.so'))
+				{
+					echo 'Failed to load php extention BC Math';
+				}
+			}
+		?>
+		
 		<main class="container">
 			<data-uib-accordion data-close-others="true" class="bootstrap-css">
 				

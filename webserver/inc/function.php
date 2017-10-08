@@ -33,6 +33,7 @@ function calculateSteamid64($steamID)
 	if (preg_match('/^STEAM_[0-9]:[0-9]:[0-9]{1,}/i', $steamID))
 	{
 		// Convert
+		bcscale(0);
 		$steamID = str_replace("_", ":", $steamID);
 		list($part_one, $part_two, $part_three, $part_four) = explode(':', $steamID);
 
@@ -60,6 +61,7 @@ function calculateSteamid($vars)
 		$server = 1;
 	}
 
+	bcscale(0);
 	$auth = bcsub($commid, '76561197960265728');
 
 	if (bccomp($auth, '0') != 1)
@@ -86,7 +88,8 @@ function calculateSteamid2($vars)
 	{
 		$server = 1;
 	}
-
+	
+	bcscale(0); 
 	$auth = bcsub($commid, '76561197960265728');
 
 	if (bccomp($auth, '0') != 1)
