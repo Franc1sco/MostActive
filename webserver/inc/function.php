@@ -134,6 +134,7 @@ class SQL
 		if (!$this->db) {
 			die("Couldn't make connection.");
 		}
+		mysqli_set_charset($this->db, "utf8");
 	}
 
 	// Escapes a string
