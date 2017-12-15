@@ -18,7 +18,7 @@ public SharedPlugin __pl_mostactive =
 
 
 #if !defined REQUIRE_PLUGIN
-public __pl_myjailbreak_SetNTVOptional()
+public void __pl_mostactive_SetNTVOptional()
 {
 	MarkNativeAsOptional("MostActive_GetPlayTimeT");
 	MarkNativeAsOptional("MostActive_GetPlayTimeCT");
