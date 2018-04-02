@@ -60,6 +60,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char [] error, int err_ma
 	CreateNative("MostActive_GetPlayTimeT", Native_GetPlayTimeT);
 	CreateNative("MostActive_GetPlayTimeSpec", Native_GetPlayTimeSpec);
 	CreateNative("MostActive_GetPlayTimeTotal", Native_GetPlayTimeTotal);
+	CreateNative("MostActive_GetPlayTimeTotalExceptSpec", Native_GetPlayTimeTotalExceptSpec);
 
 	gF_OnInsertNewPlayer = CreateGlobalForward("MostActive_OnInsertNewPlayer", ET_Event, Param_Cell);
 
@@ -190,6 +191,13 @@ public int Native_GetPlayTimeTotal(Handle plugin, int argc)
 	int client = GetNativeCell(1);
 	
 	return g_iPlayTimeSpec[client]+g_iPlayTimeCT[client]+g_iPlayTimeT[client];
+}
+
+public int Native_GetPlayTimeTotalExceptSpec(Handle plugin, int argc)
+{
+	int client = GetNativeCell(1);
+	
+	return g_iPlayTimeCT[client]+g_iPlayTimeT[client];
 }
 
 public int SaveSQLPlayerCallback(Handle owner, Handle hndl, char [] error, any data)
