@@ -63,7 +63,7 @@ include_once("inc/function.php");
 	<?php
 	if ($background != "")
 	{
-		echo'<body data-ng-controller="demoController as vm" style="background: url(' .$background. '); background-repeat: no-repeat; background-attachment: fixed; width:100%; height:100%;">';
+		echo'<body data-ng-controller="demoController as vm" style="background: url(' .$background. '); background-repeat: no-repeat; background-attachment: fixed; background-size:100%;">';
 	}
 	else
 	{
