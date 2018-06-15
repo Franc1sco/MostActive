@@ -31,6 +31,7 @@ include_once("inc/config.php");
 
 include_once("inc/function.php");
 
+include_once("inc/SteamID.php"); //https://github.com/xPaw/SteamID.php
 ?>
 
 <!DOCTYPE html>
@@ -78,18 +79,19 @@ include_once("inc/function.php");
 		
 		<div class="page-header"></div>
 		
-		<?php
-			if (!extension_loaded('bcmath'))
-			{
-				if (!dl('bcmath.so'))
-				{
-					echo 'Failed to load php extention BC Math';
-				}
-			}
-		?>
 		
 		<main class="container">
 			<data-uib-accordion data-close-others="true" class="bootstrap-css">
+			
+			<?php
+				if (!extension_loaded('bcmath'))
+				{
+					if (!dl('bcmath.so'))
+					{
+						echo '<div class="alert alert-danger" role="alert">Failed to load php extensions <strong>bcmath</strong></div>';
+					}
+				}
+			?>
 				
 				<div>
 				<?php
@@ -127,7 +129,7 @@ include_once("inc/function.php");
 					// Search?
 					$site = "?";
 					
-					if (($searchTyp == "name" || $searchTyp == "steamid" || $searchTyp == "steamid64") && $search != "")
+					if (($searchTyp == "name" || $searchTyp == "steamid") && $search != "")
 					{
 						// Escape Search
 						$search = $sql_mostactive->escape($search);
@@ -135,12 +137,31 @@ include_once("inc/function.php");
 						// Append to where clause
 						if ($searchTyp == "steamid")
 						{
-							$sqlSearch .= " AND `steamid` LIKE '%" .$search. "%'";
-						}
-						else if ($searchTyp == "steamid64")
-						{
-							$searchas64 = calculateSteamid2($search);
-							$sqlSearch .= " AND `steamid` LIKE '%" .$searchas64. "%'";
+							try
+							{
+								$steamid = new SteamID($search);
+								
+								if( $steamid->GetAccountType() !== SteamID :: TypeIndividual )
+								{
+									throw new InvalidArgumentException( 'We only support individual SteamIDs.' );
+								}
+								else if( !$steamid->IsValid() )
+								{
+									throw new InvalidArgumentException( 'Invalid SteamID.' );
+								}
+								
+								$steamid->SetAccountInstance( SteamID :: DesktopInstance );
+								$steamid->SetAccountUniverse( SteamID :: UniversePublic );
+							}
+							catch( InvalidArgumentException $e )
+							{
+								echo $e->getMessage();
+							}
+							
+							$steamid3 = $steamid->RenderSteam2().PHP_EOL;
+							$steamid3 = preg_replace('/\s+/', '', $steamid3);
+							
+							$sqlSearch .= " AND `steamid` LIKE '%" .$steamid3."%'";
 						}
 						else
 						{
@@ -297,7 +318,6 @@ include_once("inc/function.php");
 											<select class="form-control"  name="type" id="type" value="Name">
 												<option value="name">Name</option>
 												<option value="steamid">SteamID</option>
-												<option value="steamid64">SteamID64</option>
 											</select>
 										</span>
 										<input class="form-control" type="text" name="search" id="search" value="<?php echo $search; ?>"/>
@@ -348,7 +368,13 @@ include_once("inc/function.php");
 											$name = str_replace("&", "&amp;", $name);
 											$name = substr($name, 0, 22);
 											
-											if(($search == calculateSteamid64($row['steamid']) || $search == $row['steamid'] || $search == $name) && $search != "")
+											$steamid = new SteamID($row['steamid']);
+											$steam3 = $steamid->RenderSteam3().PHP_EOL;
+											$steam64 = $steamid->ConvertToUInt64().PHP_EOL;
+											$steam3 = preg_replace('/\s+/', '', $steam3);
+											$steam64 = preg_replace('/\s+/', '', $steam64);
+											
+											if(($search == $steam3 || $search == $steam64 || $search == $row['steamid'] || $search == $name) && $search != "")
 											{
 												echo '<tr class="success">';
 											}
@@ -362,14 +388,14 @@ include_once("inc/function.php");
 											<td>';
 											
 											echo '
-											<b><a href="http://steamcommunity.com/profiles/' .calculateSteamid64($row['steamid']). '" >' .$name. '</a></b></td>
+											<b><a href="http://steamcommunity.com/profiles/' .$steamid->ConvertToUInt64() . PHP_EOL. '" >' .$name. '</a></b></td>
 											
 											<td>' .secondsToTime($row['total'], $time_format). '</td>
 											<td>' .secondsToTime($row['timeCT'], $time_format).'</td>
 											<td>' .secondsToTime($row['timeTT'], $time_format).'</td>
 											<td>' .secondsToTime($row['timeSPE'], $time_format). '</td>
 											
-											<td><a href="http://steamcommunity.com/profiles/' .calculateSteamid64($row['steamid']). '" target="_blank"><img src="./img/steam.png"; style="width:auto; height:25px; padding-right: 4px;padding-top: 4px;"></a></td>
+											<td><a href="http://steamcommunity.com/profiles/' .$steamid->ConvertToUInt64() . PHP_EOL. '" target="_blank"><img src="./img/steam.png"; style="width:auto; height:25px; padding-right: 4px;padding-top: 4px;"></a></td>
 											</tr>';
 											
 											$index++;

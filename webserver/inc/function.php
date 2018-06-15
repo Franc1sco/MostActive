@@ -26,86 +26,9 @@
 //
 // *************************************************************************
 
-// Calculate communityid
-function calculateSteamid64($steamID)
-{
-	// Valid?
-	if (preg_match('/^STEAM_[0-9]:[0-9]:[0-9]{1,}/i', $steamID))
-	{
-		// Convert
-		bcscale(0);
-		$steamID = str_replace("_", ":", $steamID);
-		list($part_one, $part_two, $part_three, $part_four) = explode(':', $steamID);
-
-		$result = bcadd('76561197960265728', $part_four * 2);
-
-		return bcadd($result, $part_three);
-	}
-	else
-	{
-		return false;
-	}
-}
-
-// Steamid out of communityid
-function calculateSteamid($vars)
-{
-	$commid = $vars;
-
-	if (substr($commid, -1) % 2 == 0)
-	{
-		$server = 0;
-	}
-	else
-	{
-		$server = 1;
-	}
-
-	bcscale(0);
-	$auth = bcsub($commid, '76561197960265728');
-
-	if (bccomp($auth, '0') != 1)
-	{
-		return "";
-	}
-
-	$auth = bcsub($auth, $server);
-	$auth = bcdiv($auth, 2);
-
-	return 'STEAM_0:'.$server.':'.$auth;
-}
-
-// Steamid out of communityid
-function calculateSteamid2($vars)
-{
-	$commid = $vars;
-
-	if (substr($commid, -1) % 2 == 0)
-	{
-		$server = 0;
-	}
-	else
-	{
-		$server = 1;
-	}
-	
-	bcscale(0); 
-	$auth = bcsub($commid, '76561197960265728');
-
-	if (bccomp($auth, '0') != 1)
-	{
-		return "";
-	}
-
-	$auth = bcsub($auth, $server);
-	$auth = bcdiv($auth, 2);
-
-	return 'STEAM_1:'.$server.':'.$auth;
-}
 
 function secondsToTime($seconds, $time_format) {
 	date_default_timezone_set('America/Los_Angeles');
-
 	$dtF = new DateTime("@0");
 	$dtT = new DateTime("@$seconds");
 	$diff = $dtF->diff($dtT);
