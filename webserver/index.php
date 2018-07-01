@@ -91,6 +91,10 @@ include_once("inc/SteamID.php"); //https://github.com/xPaw/SteamID.php
 						echo '<div class="alert alert-danger" role="alert">Failed to load php extensions <strong>bcmath</strong></div>';
 					}
 				}
+				if (!extension_loaded('GMP'))
+				{
+					echo '<div class="alert alert-danger" role="alert">Failed to load php extensions <strong>GMP</strong></div>';
+				}
 			?>
 				
 				<div>
