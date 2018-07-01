@@ -67,3 +67,10 @@ native int MostActive_GetPlayTimeSpec(int client);
  * @Return				Total PlayTime as CT, T & Spec in seconds
  *********************************************************/
 native int MostActive_GetPlayTimeTotal(int client);
+
+/*********************************************************
+ * Return the playtime of the client in all teams, except spectator
+ *
+ * @Return				Total PlayTime as CT & T in seconds
+ *********************************************************/
+native int MostActive_GetPlayTimeTotalExceptSpec(int client);
