@@ -31,6 +31,8 @@ int g_iPlayTimeSpec[MAXPLAYERS+1] = 0;
 int g_iPlayTimeT[MAXPLAYERS+1] = 0;
 int g_iPlayTimeCT[MAXPLAYERS+1] = 0;
 
+ConVar g_cvar_serverID;
+
 bool g_bChecked[MAXPLAYERS + 1];
 
 char g_sCmdLogPath[256];
@@ -73,6 +75,8 @@ public void OnPluginStart()
 	CreateConVar("sm_mostactive_version", VERSION, "version", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
 	RegConsoleCmd("sm_active", DOMenu);
 	RegConsoleCmd("sm_wasted", Command_Wasted);
+
+    g_cvar_serverID = CreateConVar("sm_ma_id", "1", "The ID of the server for the mostactive table");
 	
 	for(int i=0;;i++)
 	{
@@ -101,14 +105,14 @@ public int OnSQLConnect(Handle owner, Handle hndl, char [] error, any data)
 		
 		if(g_bIsMySQl)
 		{
-			Format(g_sSQLBuffer, sizeof(g_sSQLBuffer), "CREATE TABLE IF NOT EXISTS `mostactive` (`playername` varchar(128) NOT NULL, `steamid` varchar(32) PRIMARY KEY NOT NULL,`last_accountuse` int(64) NOT NULL, `timeCT` INT( 16 ), `timeTT` INT( 16 ),`timeSPE` INT( 16 ), `total` INT( 16 ))");
+			Format(g_sSQLBuffer, sizeof(g_sSQLBuffer), "CREATE TABLE IF NOT EXISTS `mostactive` (`server_id` int(11) NULL, `playername` varchar(128) NOT NULL, `steamid` varchar(32) PRIMARY KEY NOT NULL,`last_accountuse` int(64) NOT NULL, `timeCT` INT( 16 ), `timeTT` INT( 16 ),`timeSPE` INT( 16 ), `total` INT( 16 ))");
 			
 			SQL_TQuery(g_hDB, OnSQLConnectCallback, g_sSQLBuffer);
 			LogToFileEx(g_sCmdLogPath, "Query %s", g_sSQLBuffer);
 		}
 		else
 		{
-			Format(g_sSQLBuffer, sizeof(g_sSQLBuffer), "CREATE TABLE IF NOT EXISTS mostactive (playername varchar(128) NOT NULL, steamid varchar(32) PRIMARY KEY NOT NULL,last_accountuse int(64) NOT NULL, timeCT INTEGER, timeTT INTEGER, timeSPE INTEGER, total INTEGER)");
+			Format(g_sSQLBuffer, sizeof(g_sSQLBuffer), "CREATE TABLE IF NOT EXISTS mostactive (server_id int(11) NULL, playername varchar(128) NOT NULL, steamid varchar(32) PRIMARY KEY NOT NULL,last_accountuse int(64) NOT NULL, timeCT INTEGER, timeTT INTEGER, timeSPE INTEGER, total INTEGER)");
 			
 			SQL_TQuery(g_hDB, OnSQLConnectCallback, g_sSQLBuffer);
 			LogToFileEx(g_sCmdLogPath, "Query %s", g_sSQLBuffer);
@@ -149,8 +153,8 @@ public void InsertSQLNewPlayer(int client)
 		TrimString(Name);
 		SQL_EscapeString(g_hDB, Name, SafeName, sizeof(SafeName));
 	}
-	
-	Format(query, sizeof(query), "INSERT INTO mostactive(playername, steamid, last_accountuse, timeCT, timeTT, timeSPE, total) VALUES('%s', '%s', '%d', '0', '0', '0', '0');", SafeName, steamid, GetTime());
+	GetConVarInt(g_cvar_serverID);
+	Format(query, sizeof(query), "INSERT INTO mostactive(server_id, playername, steamid, last_accountuse, timeCT, timeTT, timeSPE, total) VALUES('%i', '%s', '%s', '%d', '0', '0', '0', '0');", g_cvar_serverID, SafeName, steamid, GetTime());
 	SQL_TQuery(g_hDB, SaveSQLPlayerCallback, query, userid);
 	LogToFileEx(g_sCmdLogPath, "Query %s", query);
 	g_iPlayTimeCT[client] = 0;
@@ -204,8 +208,8 @@ public void CheckSQLSteamID(int client)
 {
 	char query[255], steamid[32];
 	GetClientAuthId(client, AuthId_Steam2,steamid, sizeof(steamid) );
-	
-	Format(query, sizeof(query), "SELECT timeCT, timeTT, timeSPE FROM mostactive WHERE steamid = '%s'", steamid);
+	GetConVarInt(g_cvar_serverID);
+	Format(query, sizeof(query), "SELECT timeCT, timeTT, timeSPE FROM mostactive WHERE server_id = '%i' AND steamid = '%s'", g_cvar_serverID, steamid);
 	SQL_TQuery(g_hDB, CheckSQLSteamIDCallback, query, GetClientUserId(client));
 	LogToFileEx(g_sCmdLogPath, "Query %s", query);
 }
@@ -251,9 +255,9 @@ public void SaveSQLCookies(int client)
 		TrimString(Name);
 		SQL_EscapeString(g_hDB, Name, SafeName, sizeof(SafeName));
 	}	
-
+	GetConVarInt(g_cvar_serverID);
 	char buffer[3096];
-	Format(buffer, sizeof(buffer), "UPDATE mostactive SET last_accountuse = %d, playername = '%s',timeCT = '%i',timeTT = '%i', timeSPE = '%i',total = '%i' WHERE steamid = '%s';",GetTime(), SafeName, g_iPlayTimeCT[client],g_iPlayTimeT[client],g_iPlayTimeSpec[client],g_iPlayTimeCT[client]+g_iPlayTimeT[client]+g_iPlayTimeSpec[client], steamid);
+	Format(buffer, sizeof(buffer), "UPDATE mostactive SET last_accountuse = %d, playername = '%s',timeCT = '%i',timeTT = '%i', timeSPE = '%i',total = '%i' WHERE steamid = '%s' AND server_id = '%i';",GetTime(), SafeName, g_iPlayTimeCT[client],g_iPlayTimeT[client],g_iPlayTimeSpec[client],g_iPlayTimeCT[client]+g_iPlayTimeT[client]+g_iPlayTimeSpec[client], steamid, g_cvar_serverID);
 	SQL_TQuery(g_hDB, SaveSQLPlayerCallback, buffer);
 	LogToFileEx(g_sCmdLogPath, "Query %s", buffer);
 	g_bChecked[client] = false;
@@ -677,7 +681,8 @@ public Action DOMenu(int client, int args)
 		//PrintToChat(client, "tengo %s", steamid);
 		
 		char buffer[200];
-		Format(buffer, sizeof(buffer), "SELECT timeCT, timeTT, timeSPE, total, playername FROM mostactive WHERE steamid = '%s'", steamid);
+		GetConVarInt(g_cvar_serverID);
+		Format(buffer, sizeof(buffer), "SELECT timeCT, timeTT, timeSPE, total, playername FROM mostactive WHERE steamid = '%s' AND server_id = '%i'", steamid, g_cvar_serverID);
 		SQL_TQuery(g_hDB, SQLShowPlayTime, buffer, GetClientUserId(client));
 		//LogToFileEx(g_sCmdLogPath, "Query %s", buffer);
 	}
