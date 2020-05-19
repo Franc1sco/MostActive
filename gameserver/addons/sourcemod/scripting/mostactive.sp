@@ -25,7 +25,7 @@
 
 #define IDAYS 26
 
-#define VERSION "2.6"
+#define VERSION "2.6.1"
 
 int g_iPlayTimeSpec[MAXPLAYERS+1] = 0;
 int g_iPlayTimeT[MAXPLAYERS+1] = 0;
@@ -45,6 +45,8 @@ Handle gF_OnInsertNewPlayer;
 int g_iHours;
 int g_iMinutes;
 int g_iSeconds;
+
+ConVar cv_logs;
 
 public Plugin myinfo = {
 	name = "SM Most Active",
@@ -73,6 +75,7 @@ public void OnPluginStart()
 	CreateConVar("sm_mostactive_version", VERSION, "version", FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY);
 	RegConsoleCmd("sm_active", DOMenu);
 	RegConsoleCmd("sm_wasted", Command_Wasted);
+	cv_logs = CreateConVar("sm_mostactive_logs", "0", "Enable query logging for debug");
 	
 	for(int i=0;;i++)
 	{
@@ -104,14 +107,14 @@ public int OnSQLConnect(Handle owner, Handle hndl, char [] error, any data)
 			Format(g_sSQLBuffer, sizeof(g_sSQLBuffer), "CREATE TABLE IF NOT EXISTS `mostactive` (`playername` varchar(128) NOT NULL, `steamid` varchar(32) PRIMARY KEY NOT NULL,`last_accountuse` int(64) NOT NULL, `timeCT` INT( 16 ), `timeTT` INT( 16 ),`timeSPE` INT( 16 ), `total` INT( 16 ))");
 			
 			SQL_TQuery(g_hDB, OnSQLConnectCallback, g_sSQLBuffer);
-			LogToFileEx(g_sCmdLogPath, "Query %s", g_sSQLBuffer);
+			if(cv_logs.BoolValue)LogToFileEx(g_sCmdLogPath, "Query %s", g_sSQLBuffer);
 		}
 		else
 		{
 			Format(g_sSQLBuffer, sizeof(g_sSQLBuffer), "CREATE TABLE IF NOT EXISTS mostactive (playername varchar(128) NOT NULL, steamid varchar(32) PRIMARY KEY NOT NULL,last_accountuse int(64) NOT NULL, timeCT INTEGER, timeTT INTEGER, timeSPE INTEGER, total INTEGER)");
 			
 			SQL_TQuery(g_hDB, OnSQLConnectCallback, g_sSQLBuffer);
-			LogToFileEx(g_sCmdLogPath, "Query %s", g_sSQLBuffer);
+			if(cv_logs.BoolValue)LogToFileEx(g_sCmdLogPath, "Query %s", g_sSQLBuffer);
 		}
 		PruneDatabase();
 	}
@@ -152,7 +155,7 @@ public void InsertSQLNewPlayer(int client)
 	
 	Format(query, sizeof(query), "INSERT INTO mostactive(playername, steamid, last_accountuse, timeCT, timeTT, timeSPE, total) VALUES('%s', '%s', '%d', '0', '0', '0', '0');", SafeName, steamid, GetTime());
 	SQL_TQuery(g_hDB, SaveSQLPlayerCallback, query, userid);
-	LogToFileEx(g_sCmdLogPath, "Query %s", query);
+	if(cv_logs.BoolValue)LogToFileEx(g_sCmdLogPath, "Query %s", query);
 	g_iPlayTimeCT[client] = 0;
 	g_iPlayTimeT[client] = 0;
 	g_iPlayTimeSpec[client] = 0;
@@ -207,7 +210,7 @@ public void CheckSQLSteamID(int client)
 	
 	Format(query, sizeof(query), "SELECT timeCT, timeTT, timeSPE FROM mostactive WHERE steamid = '%s'", steamid);
 	SQL_TQuery(g_hDB, CheckSQLSteamIDCallback, query, GetClientUserId(client));
-	LogToFileEx(g_sCmdLogPath, "Query %s", query);
+	if(cv_logs.BoolValue)LogToFileEx(g_sCmdLogPath, "Query %s", query);
 }
 
 public int CheckSQLSteamIDCallback(Handle owner, Handle hndl, char [] error, any data)
@@ -255,7 +258,7 @@ public void SaveSQLCookies(int client)
 	char buffer[3096];
 	Format(buffer, sizeof(buffer), "UPDATE mostactive SET last_accountuse = %d, playername = '%s',timeCT = '%i',timeTT = '%i', timeSPE = '%i',total = '%i' WHERE steamid = '%s';",GetTime(), SafeName, g_iPlayTimeCT[client],g_iPlayTimeT[client],g_iPlayTimeSpec[client],g_iPlayTimeCT[client]+g_iPlayTimeT[client]+g_iPlayTimeSpec[client], steamid);
 	SQL_TQuery(g_hDB, SaveSQLPlayerCallback, buffer);
-	LogToFileEx(g_sCmdLogPath, "Query %s", buffer);
+	if(cv_logs.BoolValue)LogToFileEx(g_sCmdLogPath, "Query %s", buffer);
 	g_bChecked[client] = false;
 }
 
@@ -284,7 +287,7 @@ public void PruneDatabase()
 {
 	if(g_hDB == INVALID_HANDLE)
 	{
-		LogToFileEx(g_sCmdLogPath, "Prune Database: No connection");
+		if(cv_logs.BoolValue)LogToFileEx(g_sCmdLogPath, "Prune Database: No connection");
 		return;
 	}
 
@@ -298,7 +301,7 @@ public void PruneDatabase()
 	else
 		Format(buffer, sizeof(buffer), "DELETE FROM mostactive WHERE last_accountuse<'%d' AND last_accountuse>'0';", maxlastaccuse);
 
-	LogToFileEx(g_sCmdLogPath, "Query %s", buffer);
+	if(cv_logs.BoolValue)LogToFileEx(g_sCmdLogPath, "Query %s", buffer);
 	SQL_TQuery(g_hDB, PruneDatabaseCallback, buffer);
 }
 
@@ -306,7 +309,7 @@ public int PruneDatabaseCallback(Handle owner, Handle hndl, char [] error, any d
 {
 	if(hndl == INVALID_HANDLE)
 	{
-		LogToFileEx(g_sCmdLogPath, "Query failure: %s", error);
+		if(cv_logs.BoolValue)LogToFileEx(g_sCmdLogPath, "Query failure: %s", error);
 	}
 	//LogMessage("Prune Database successful");
 }
