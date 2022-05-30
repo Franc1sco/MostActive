@@ -1,6 +1,6 @@
 /*  SM Most Active
  *
- *  Copyright (C) 2017 Francisco 'Franc1sco' García
+ *  Copyright (C) 2017-2022 Francisco 'Franc1sco' García
  *  Contributor: shanapu
  * 
  * This program is free software: you can redistribute it and/or modify it
@@ -25,7 +25,7 @@
 
 #define IDAYS 26
 
-#define VERSION "2.6.1"
+#define VERSION "2.6.2"
 
 int g_iPlayTimeSpec[MAXPLAYERS+1] = 0;
 int g_iPlayTimeT[MAXPLAYERS+1] = 0;
@@ -62,6 +62,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char [] error, int err_ma
 	CreateNative("MostActive_GetPlayTimeT", Native_GetPlayTimeT);
 	CreateNative("MostActive_GetPlayTimeSpec", Native_GetPlayTimeSpec);
 	CreateNative("MostActive_GetPlayTimeTotal", Native_GetPlayTimeTotal);
+	CreateNative("MostActive_GetPlayTimeTotalExceptSpec", Native_GetPlayTimeTotalExceptSpec);
 
 	gF_OnInsertNewPlayer = CreateGlobalForward("MostActive_OnInsertNewPlayer", ET_Event, Param_Cell);
 
@@ -193,6 +194,13 @@ public int Native_GetPlayTimeTotal(Handle plugin, int argc)
 	int client = GetNativeCell(1);
 	
 	return g_iPlayTimeSpec[client]+g_iPlayTimeCT[client]+g_iPlayTimeT[client];
+}
+
+public int Native_GetPlayTimeTotalExceptSpec(Handle plugin, int argc)
+{
+	int client = GetNativeCell(1);
+
+	return g_iPlayTimeCT[client]+g_iPlayTimeT[client];
 }
 
 public int SaveSQLPlayerCallback(Handle owner, Handle hndl, char [] error, any data)
