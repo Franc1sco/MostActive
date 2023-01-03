@@ -1,6 +1,6 @@
 /*  SM Most Active
  *
- *  Copyright (C) 2017-2022 Francisco 'Franc1sco' García
+ *  Copyright (C) 2017-2023 Francisco 'Franc1sco' García
  *  Contributor: shanapu
  * 
  * This program is free software: you can redistribute it and/or modify it
@@ -21,11 +21,8 @@
 
 #include <sourcemod>
 #include <sdktools>
-#include <mostactive>
 
-#define IDAYS 26
-
-#define VERSION "2.6.2"
+#define VERSION "2.6.3"
 
 int g_iPlayTimeSpec[MAXPLAYERS+1] = 0;
 int g_iPlayTimeT[MAXPLAYERS+1] = 0;
@@ -47,6 +44,7 @@ int g_iMinutes;
 int g_iSeconds;
 
 ConVar cv_logs;
+ConVar cv_prune;
 
 public Plugin myinfo = {
 	name = "SM Most Active",
@@ -77,6 +75,9 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_active", DOMenu);
 	RegConsoleCmd("sm_wasted", Command_Wasted);
 	cv_logs = CreateConVar("sm_mostactive_logs", "0", "Enable query logging for debug");
+	cv_prune = CreateConVar("sm_mostactive_prunetime", "30", "Time on days for prune inactive users. 0 = never prune users.");
+	
+	AutoExecConfig(true, "mostactive");
 	
 	for(int i=0;;i++)
 	{
@@ -298,9 +299,12 @@ public void PruneDatabase()
 		if(cv_logs.BoolValue)LogToFileEx(g_sCmdLogPath, "Prune Database: No connection");
 		return;
 	}
+	int prunetime = cv_prune.IntValue;
+	
+	if (prunetime == 0)return;
 
 	int maxlastaccuse;
-	maxlastaccuse = GetTime() - (IDAYS * 86400);
+	maxlastaccuse = GetTime() - (prunetime * 86400);
 
 	char buffer[1024];
 
